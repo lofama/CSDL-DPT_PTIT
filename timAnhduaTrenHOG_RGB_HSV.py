@@ -135,27 +135,20 @@ def find_most_similar_images(file_path, target_image_index, has):
   # embedding[0]=0
     data_hog.append(embedding)
     print("Data HOG:",data_hog)
-    array_concat_hog_hsv = []
-    array_concat_hog_rgb = []
+    array_concat_hsv_hog_rgb = []
     num_samples = len(fish_data)
     print("len(fish_data):",len(fish_data))
     for i in range(num_samples):
         concat_in_value = np.concatenate((data_HSV[i], data_hog[i]))
-        array_concat_hog_hsv.append(concat_in_value)
-        concat_in_value1 = np.concatenate((data_RGB[i], data_hog[i]))
-        array_concat_hog_rgb.append(concat_in_value1)
+        concat_in_value1 = np.concatenate((concat_in_value,data_RGB[i]))
+        array_concat_hsv_hog_rgb.append(concat_in_value1)
         # np.save("concat_hog_hsv_newimg.npy", array_concat_hog_hsv)
         # np.save("concat_hog_rgb_newimg.npy", array_concat_hog_rgb)
-    print(len(array_concat_hog_hsv[0]))
+    print(len(array_concat_hsv_hog_rgb[0]))
     # Kết hợp feature vectors từ HSV và HOG
-    # array_concat_hog_hsv = np.load("concat_hog_hsv_newimg.npy")
-    # array_concat_hog_rgb = np.load("concat_hog_rgb_newimg.npy")    
-    combined_feature_vectors_hsv_hog = np.load("concat_hog_hsv.npy")
-    print(combined_feature_vectors_hsv_hog[0])
+    combined_feature_vectors_hsv_hog = np.load("concat_hog_hsv_rgb.npy")
     if has:
-        # combined_feature_vectors_hsv_hog = np.concatenate((combined_feature_vectors_hsv_hog, array_concat_hog_hsv[0]), axis=0)    
-        # Thay đổi hình dạng của mảng
-        combined_feature_vectors_hsv_hog = np.concatenate((combined_feature_vectors_hsv_hog, array_concat_hog_hsv), axis=0)  # Nối các mảng
+        combined_feature_vectors_hsv_hog = np.concatenate((combined_feature_vectors_hsv_hog, array_concat_hsv_hog_rgb), axis=0)  # Nối các mảng
 
     print("target_image_index: ",target_image_index)
     # Tính toán khoảng cách Euclid giữa các feature vectors
@@ -165,31 +158,11 @@ def find_most_similar_images(file_path, target_image_index, has):
 
     # Sắp xếp các ảnh theo khoảng cách tới ảnh mục tiêu và lấy top_n ảnh gần nhất
     closest_images_indices_hsv_hog = np.argsort(target_image_distances_hsv_hog)[1:top_n+1]
-
+    listImg = []
     # In ra thông tin về top_n ảnh gần nhất và phần trăm giống
     print("Top", top_n, "ảnh giống nhất với ảnh", target_image_index, "sử dụng HSV và HOG:")
     for i, index in enumerate(closest_images_indices_hsv_hog):
         similarity_percent = (1 - target_image_distances_hsv_hog[index] / np.max(distances_hsv_hog)) * 100
-        print("Ảnh", i+1, ":", index, "- Phần trăm giống:", similarity_percent)
-    combined_feature_vectors_rgb_hog=[]
-    # Kết hợp feature vectors từ RGB và HOG
-    combined_feature_vectors_rgb_hog = np.load("concat_hog_rgb.npy", allow_pickle=True)
-    if has :
-       combined_feature_vectors_rgb_hog = np.concatenate((combined_feature_vectors_rgb_hog, array_concat_hog_rgb),axis=0)
-       
-    # Tính toán khoảng cách Euclid giữa các feature vectors
-    distances_rgb_hog = euclidean_distances(combined_feature_vectors_rgb_hog, combined_feature_vectors_rgb_hog)
-
-    # Lấy chỉ số của ảnh mục tiêu
-    target_image_distances_rgb_hog = distances_rgb_hog[target_image_index]
-
-    # Sắp xếp các ảnh theo khoảng cách tới ảnh mục tiêu và lấy top_n ảnh gần nhất
-    closest_images_indices_rgb_hog = np.argsort(target_image_distances_rgb_hog)[1:top_n+1]
-    listImg = []
-    # In ra thông tin về top_n ảnh gần nhất và phần trăm giống
-    print("Top", top_n, "ảnh giống nhất với ảnh", target_image_index,"(",file_names,")", "sử dụng RGB và HOG:")
-    for i, index in enumerate(closest_images_indices_rgb_hog):
-        similarity_percent = (1 - target_image_distances_rgb_hog[index] / np.max(distances_rgb_hog)) * 100
         print("Ảnh", i+1, ":", index, "- Phần trăm giống:", similarity_percent)
         listImg.append([i,load_y[index],"{:.2f}".format(similarity_percent)])
     return listImg 
@@ -208,8 +181,9 @@ def display_images(file_path):
         load_y = np.append(load_y,[file_names])
         target_image_index = len(load_y) - 1
         listIMG = find_most_similar_images(file_path,target_image_index,True)
-
+        print(listIMG)
     image1 = Image.open("img_data/"+listIMG[0][1])
+    print(listIMG[1][1])
     image2 = Image.open("img_data/"+listIMG[1][1])
     image3 = Image.open("img_data/"+listIMG[2][1])
 
