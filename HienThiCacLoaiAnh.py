@@ -9,16 +9,15 @@ import cv2
 from skimage import exposure
 from skimage import feature
 from tqdm import tqdm
-import re
-
+import matplotlib.pyplot as plt
 path_dataset= r"img_data"
 # # data clean là thư mục , trong ddoscos nhiều thư mục con
 # dir = path_dataset
 # datadir = path_dataset
 
 # Lấy danh sách tên tất cả các tệp trong thư mục chứa ảnh
-file_names = os.listdir(path_dataset)
-
+# file_names = os.listdir(path_dataset)
+file_names = ["100.jpg"]
 # Lấy tổng số tệp ảnh trong thư mục
 # total_images = len(file_names)
 # print("Tổng số ảnh:", total_images)
@@ -30,32 +29,11 @@ for name in file_names:
     img_array = cv2.imread(os.path.join(path_dataset, name), cv2.COLOR_BGR2RGB)
     img_array = cv2.resize(img_array, img_size)
     # fish_data.append([class_num,img_array])
-    fish_data.append([name,img_array])  # Chuyển đổi mảng hình ảnh thành mảng numpy
+    fish_data.append([img_array])  # Chuyển đổi mảng hình ảnh thành mảng numpy
     print(count, end=" ")
     count=count+1
 print()
-X = []
-y = []
-# Chia dữ liệu thành X (hình ảnh) và y (nhãn)
-X = np.array([item[1] for item in fish_data])
-y = np.array([item[0] for item in fish_data])
-# np.save("X.npy", X)
-# np.save("y.npy", y)
-print(y)
-"""
-listname = []
-for i in file_names:
-    num = i.split(".")[0]
-    listname.append(num)
-# 
-# X = np.array([item[0] for item in fish_data])
-# y = np.array([item[0] for item in listname])
-## print(X)
-## print(y)
-# Lưu dữ liệu vào hai tệp numpy riêng biệt
-# np.save("X.npy", X)
-# np.save("y.npy", y)
-# np.save("fish_data.npy",fish_data)
+
 def rgb_to_hsv(pixel):
     r , g, b = pixel 
     r , g ,b = b / 255.0, g / 255.0, r / 255.0
@@ -101,13 +79,10 @@ def my_calcHist(image, channels, histSize, ranges):
             # Tăng giá trị của bin tương ứng lên 1
             hist[tuple(bin_idxs)] += 1
     return hist
-# Trích xuất dữ liệu RGB
-
-//
 data_RGB =[]
 for i in range(len(fish_data)):
   # Đọc ảnh và chuyển đổi sang không gian màu HSV
-  img = fish_data[i][1]
+  img = fish_data[i][0]
   bins = [8, 8, 8]
   ranges = [[0, 256], [0, 256], [0, 256]]
 #   img_hsv=covert_image_rgb_to_hsv(img)
@@ -116,13 +91,11 @@ for i in range(len(fish_data)):
   embedding[0]=0
   data_RGB.append(embedding)
   print(i,end=' ')
-print(data_RGB)
-np.save("RGB.npy",data_RGB)
-
+print("Data RGB:",data_RGB)
 data_HSV=[]
 for i in range(len(fish_data)) :
   # Đọc ảnh và chuyển đổi sang không gian màu HSV
-  img = fish_data[i][1]
+  img = fish_data[i][0]
   bins = [8,12,3]
   ranges = [[0, 180], [0, 256], [0, 256]]
   img_hsv=covert_image_rgb_to_hsv(img)
@@ -132,7 +105,7 @@ for i in range(len(fish_data)) :
   embedding[0]=0
   data_HSV.append(embedding)
   print(i,end=' ')
-np.save("HSV.npy", data_HSV)
+print("Data HSV:",data_HSV)
 
 # Trich xuat dac trug hinh dang
 def convert_image_rgb_to_gray(img_rgb, resize="no"):
@@ -164,36 +137,56 @@ for i in range(len(fish_data)) :
   # img_hsv=covert_image_rgb_to_hsv(img)
   # hist_my = my_calcHist(img_hsv, [0, 1, 2], bins, ranges)
   # print(hist_my.shape)
-  img_gray=convert_image_rgb_to_gray(fish_data[i][1])
+  img_gray=convert_image_rgb_to_gray(fish_data[i][0])
   embedding=hog_feature(img_gray)
   embedding = embedding.flatten()
   # embedding[0]=0
   data_hog.append(embedding)
   print(i,end=' ')
-np.save("HOG.npy",data_hog)
-"""
-# Load file
-data_file_hsv = np.load("HSV.npy", allow_pickle=True)
-data_file_hog = np.load("HOG.npy", allow_pickle=True)
-data_file_rgb = np.load("RGB.npy", allow_pickle=True)
-
-# Print số lượng mẫu trong data_file_hog
-num_samples = len(data_file_hog[:, 1])
-print("Số lượng mẫu trong data_file_hog:", num_samples)
+print("Data HOG:",data_hog)
 
 array_concat_hog_hsv = []
 array_concat_hog_rgb = []
-
-# Tạo mảng concat_hog_hsv và concat_hog_rgb
+num_samples = len(fish_data)
 for i in range(num_samples):
-    if data_file_hsv[:, 0][i].ndim > 0 and data_file_hog[:, 0][i].ndim > 0:
-        concat_in_value = np.concatenate((data_file_hsv[:, 1][i], data_file_hog[:, 1][i]))
-        array_concat_hog_hsv.append([data_file_hog[:, 0][i], concat_in_value])
+    concat_in_value = np.concatenate((data_HSV[i], data_hog[i]))
+    array_concat_hog_hsv.append([data_hog[i], concat_in_value])
 
-    if data_file_rgb[:, 0][i].ndim > 0 and data_file_hog[:, 0][i].ndim > 0:
-        concat_in_value = np.concatenate((data_file_rgb[:, 1][i], data_file_hog[:, 1][i]))
-        array_concat_hog_rgb.append([data_file_hog[:, 0][i], concat_in_value])
+    concat_in_value = np.concatenate((data_RGB[i], data_hog[i]))
+    array_concat_hog_rgb.append([data_hog[i], concat_in_value])
 print(len(array_concat_hog_hsv))
-# Lưu mảng concat_hog_hsv và concat_hog_rgb vào các file npy
-np.save("concat_hog_hsv.npy", array_concat_hog_hsv)
-np.save("concat_hog_rgb.npy", array_concat_hog_rgb)
+
+
+
+# Function to convert RGB image to HSV
+def convert_rgb_to_hsv(img_rgb):
+    img_hsv = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2HSV)
+    return img_hsv
+
+# Function to display image
+def show_image(img, title):
+    plt.figure(figsize=(5, 5))
+    plt.imshow(img)
+    plt.title(title)
+    plt.axis('off')
+    plt.show()
+
+# Load RGB image
+img_rgb = fish_data[0][0]
+
+# Convert RGB image to HSV
+img_hsv = convert_rgb_to_hsv(img_rgb)
+
+# Display RGB image
+show_image(img_rgb, 'RGB Image')
+
+# Display HSV image
+show_image(img_hsv, 'HSV Image')
+
+# Calculate and display HOG features
+gray_img = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2GRAY)
+hog_feats, hog_image = feature.hog(gray_img, orientations=9, pixels_per_cell=(8, 8),
+                                   cells_per_block=(2, 2), transform_sqrt=True, block_norm="L2",
+                                   visualize=True)
+show_image(hog_image, 'HOG Image')
+show_image(gray_img, 'GRAY Image')
