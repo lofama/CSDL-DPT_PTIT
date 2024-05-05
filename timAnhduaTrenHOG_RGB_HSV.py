@@ -186,7 +186,7 @@ def display_images(file_path):
     print(listIMG[1][1])
     image2 = Image.open("img_data/"+listIMG[1][1])
     image3 = Image.open("img_data/"+listIMG[2][1])
-
+    image = Image.open(file_path)
     # Resize the image to fit one-fourth of the original size
     width, height = image1.size
     new_width = int(width / 4)
@@ -194,21 +194,24 @@ def display_images(file_path):
     resized_image1 = image1.resize((new_width, new_height))
     resized_image2 = image2.resize((new_width, new_height))
     resized_image3 = image3.resize((new_width, new_height))
-
+    resized_image4 = image.resize((new_width*2, new_height*2))
+    
     # Create Tkinter image objects
     tk_image1 = ImageTk.PhotoImage(resized_image1)
     tk_image2 = ImageTk.PhotoImage(resized_image2)
     tk_image3 = ImageTk.PhotoImage(resized_image3)
-
+    tk_image4 = ImageTk.PhotoImage(resized_image4)
     # Display images
     label1.config(image=tk_image1)
     label2.config(image=tk_image2)
     label3.config(image=tk_image3)
-
+    label4.config(image=tk_image4)
+    
     # Keep references to avoid garbage collection
     label1.image = tk_image1
     label2.image = tk_image2
     label3.image = tk_image3
+    label4.image = tk_image4
     name1 = listIMG[0][1]+" Giống:"+str(listIMG[0][2])+"%"
     name2 = listIMG[1][1]+" Giống:"+str(listIMG[1][2])+"%"
     name3 = listIMG[2][1]+" Giống:"+str(listIMG[2][2])+"%"
@@ -216,6 +219,7 @@ def display_images(file_path):
     image_name_label1.config(text=name1)
     image_name_label2.config(text=name2)
     image_name_label3.config(text=name3)
+    image_name_label4.config(text=file_path)
 # Create the main application window
 root = tk.Tk()
 root.title("Find Image")
@@ -229,6 +233,7 @@ label2.grid(row=0, column=1)
 
 label3 = tk.Label(root)
 label3.grid(row=0, column=2)
+
 # Create label for displaying image name
 image_name_label1 = tk.Label(root, text="")
 image_name_label1.grid(row=1, column=0)
@@ -239,7 +244,11 @@ image_name_label3.grid(row=1, column=2)
 # Create a canvas to display images
 canvas = tk.Canvas(root)
 canvas.grid(row=2, column=0, columnspan=3, sticky="nsew")
+label4 = tk.Label(root)
+label4.grid(row=2, column=1)
 # Create and place button for opening image
+image_name_label4 = tk.Label(root, text="")
+image_name_label4.grid(row=2, column=0)
 open_button = tk.Button(root, text="Find Image", command=open_image)
 open_button.grid(row=3, column=1)
 open_button = tk.Button(root, text="Show Image", command=hienThi49)

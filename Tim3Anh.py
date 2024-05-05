@@ -86,7 +86,6 @@ def hog_feature(gray_img):# default gray_image
     cells_per_block=(2,2), transform_sqrt=True, block_norm="L2",
     visualize=True)
   return hog_feats
-# Trich xuat HOG
 
 def find_most_similar_images(file_path, target_image_index, has):
     top_n=3
@@ -153,8 +152,7 @@ def find_most_similar_images(file_path, target_image_index, has):
     combined_feature_vectors_hsv_hog = np.load("concat_hog_hsv.npy")
     print(combined_feature_vectors_hsv_hog[0])
     if has:
-        # combined_feature_vectors_hsv_hog = np.concatenate((combined_feature_vectors_hsv_hog, array_concat_hog_hsv[0]), axis=0)    
-        # Thay đổi hình dạng của mảng
+       # Thay đổi hình dạng của mảng
         combined_feature_vectors_hsv_hog = np.concatenate((combined_feature_vectors_hsv_hog, array_concat_hog_hsv), axis=0)  # Nối các mảng
 
     print("target_image_index: ",target_image_index)

@@ -11,10 +11,6 @@ from skimage import feature
 from tqdm import tqdm
 
 path_dataset= r"img_data"
-# # data clean là thư mục , trong ddoscos nhiều thư mục con
-# dir = path_dataset
-# datadir = path_dataset
-
 # Lấy danh sách tên tất cả các tệp trong thư mục chứa ảnh
 file_names = os.listdir(path_dataset)
 
@@ -87,7 +83,8 @@ def my_calcHist(image, channels, histSize, ranges):
             # Lấy giá trị của kênh màu được chỉ định
             bin_vals = [image[i, j, c] for c in channels]
             # Tính chỉ số của bin
-            bin_idxs = [(bin_vals[c] - ranges[c][0]) * histSize[c] // (ranges[c][1] - ranges[c][0]) for c in range(len(channels))]
+            bin_idxs = [(bin_vals[c] - ranges[c][0]) * histSize[c] //
+                         (ranges[c][1] - ranges[c][0]) for c in range(len(channels))]
             # Tăng giá trị của bin tương ứng lên 1
             hist[tuple(bin_idxs)] += 1
     return hist
@@ -141,9 +138,14 @@ def convert_image_rgb_to_gray(img_rgb, resize="no"):
   return np.array(img_gray)
 def hog_feature(gray_img):# default gray_image
   # 1. Khai báo các tham số
-  (hog_feats, hogImage) = feature.hog(gray_img, orientations=9, pixels_per_cell=(8 , 8),
-    cells_per_block=(2,2), transform_sqrt=True, block_norm="L2",
-    visualize=True)
+  (hog_feats, hogImage) = feature.hog(
+            gray_img, 
+            orientations=9, 
+            pixels_per_cell=(8 , 8),
+            cells_per_block=(2,2), 
+            transform_sqrt=True, 
+            block_norm="L2",
+            visualize=True)
   return hog_feats
 # Trich xuat HOG
 data_hog=[]
@@ -168,20 +170,3 @@ data_file_rgb = np.load("RGB.npy", allow_pickle=True)
 # Print số lượng mẫu trong data_file_hog
 num_samples = len(data_file_hog[:, 1])
 print("Số lượng mẫu trong data_file_hog:", num_samples)
-
-array_concat_hog_hsv = []
-array_concat_hog_rgb = []
-
-# Tạo mảng concat_hog_hsv và concat_hog_rgb
-for i in range(num_samples):
-    if data_file_hsv[:, 0][i].ndim > 0 and data_file_hog[:, 0][i].ndim > 0:
-        concat_in_value = np.concatenate((data_file_hsv[:, 1][i], data_file_hog[:, 1][i]))
-        array_concat_hog_hsv.append([data_file_hog[:, 0][i], concat_in_value])
-
-    if data_file_rgb[:, 0][i].ndim > 0 and data_file_hog[:, 0][i].ndim > 0:
-        concat_in_value = np.concatenate((data_file_rgb[:, 1][i], data_file_hog[:, 1][i]))
-        array_concat_hog_rgb.append([data_file_hog[:, 0][i], concat_in_value])
-print(len(array_concat_hog_hsv))
-# Lưu mảng concat_hog_hsv và concat_hog_rgb vào các file npy
-np.save("concat_hog_hsv.npy", array_concat_hog_hsv)
-np.save("concat_hog_rgb.npy", array_concat_hog_rgb)

@@ -10,7 +10,6 @@ print("Số lượng mẫu trong data_file_hog:", num_samples)
 
 array_concat_hog_hsv = []
 array_concat_hog_rgb = []
-
 # Tạo mảng concat_hog_hsv và concat_hog_rgb
 for i in range(num_samples):
         concat_in_value = np.concatenate((data_file_hsv[i], data_file_hog[i]))
@@ -19,8 +18,13 @@ for i in range(num_samples):
     # if data_file_rgb[:, 0][i].ndim > 0 and data_file_hog[:, 0][i].ndim > 0:
         concat_in_value = np.concatenate((data_file_rgb[i], data_file_hog[i]))
         array_concat_hog_rgb.append(concat_in_value)
-print(len(array_concat_hog_hsv))
-print(array_concat_hog_hsv[100])
+
+print(len(array_concat_hog_hsv[0]))
+print(array_concat_hog_hsv[0])
 # Lưu mảng concat_hog_hsv và concat_hog_rgb vào các file npy
 np.save("concat_hog_hsv.npy", array_concat_hog_hsv)
 np.save("concat_hog_rgb.npy", array_concat_hog_rgb)
+
+combined_feature_vectors_hsv_hog = np.load("concat_hog_hsv.npy")
+print(len(combined_feature_vectors_hsv_hog[0]))
+print(combined_feature_vectors_hsv_hog[0])
